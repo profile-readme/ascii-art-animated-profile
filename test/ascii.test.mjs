@@ -83,9 +83,24 @@ test("help and agents pages", async () => {
   assert.match(html, /Aesthetic Vulpes \(github\.com\/didvc\)/);
   assert.match(help.headers.get("content-security-policy"), /script-src 'sha256-/);
   assert.equal((html.match(/<figure>/g) || []).length, ARTS.length);
+  assert.match(html, /<div class="gallery strip" role="region"[^>]*tabindex="0">/);
+  assert.match(html, /<a class="url" href="https:\/\/readmes\.pages\.dev\/ascii\/owata">https:\/\/readmes\.pages\.dev\/ascii\/owata<\/a>/);
   for (const img of html.matchAll(/<img [^>]*>/g)) assert.match(img[0], /alt="[^"]+"/);
   const md = await (await servePage(new Request("https://readmes.pages.dev/ascii/agents"), "agents")).text();
   assert.match(md, /\| `owata` \| Owata \|/);
   const pv = await servePage(new Request("https://x1.readmes.pages.dev/ascii/help"), "help");
   assert.equal(pv.headers.get("x-robots-tag"), "noindex, nofollow");
+});
+
+test("rem sizing by default, px option, rem size tokens", async () => {
+  assert.match((await get("owata")).body, /^<svg[^>]*width="[\d.]+rem" height="[\d.]+rem"/);
+  assert.match((await get("owata/px")).body, /^<svg[^>]*width="\d+" height="\d+" viewBox/);
+  assert.equal(parseOptions(["size-2rem"]).opts.size, 32);
+});
+
+test("default colors match GitHub's text; warm keeps the readmes palette", async () => {
+  const d = (await get("owata")).body;
+  assert.match(d, /--fg:#1f2328;/);
+  assert.match(d, /--fg:#f0f6fc;/);
+  assert.match((await get("owata/warm")).body, /--fg:#f6e7dc;/);
 });

@@ -19,13 +19,15 @@ export const OPTION_GROUPS = [
   {
     title: "Look",
     rows: [
-      ["size-N", "Font size in pixels, 12 to 64 (default 22)."],
+      ["size-N", "Font size in pixels, 12 to 64 (default 22); also in rem, e.g. size-2rem (1rem = 16px)."],
+      ["px", "Pin the image to exact pixels. By default it is sized in rem, so it grows with the reader's browser font size."],
       ["card", "Draw a rounded card behind the art."],
       ["border-N", "Card border width in pixels, 0 to 8; implies card."],
       ["color-RRGGBB", "Text (and border) color as 3 or 6 hex digits without #."],
       ["rainbow", "Cycle the text through soft rainbow colors."],
       ["auto", "Follow the viewer's light or dark preference (default)."],
       ["light, dark", "Force a theme."],
+      ["warm", "Use the warm readmes palette (cream and cocoa) instead of GitHub's own text colors, which are the default."],
       ["transparent", "No card background even with card."],
       ["left, center", "Override the alignment of the art."],
     ],
@@ -65,7 +67,7 @@ form.builder{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr
 form.builder label{font-weight:700;display:block;margin-bottom:4px}
 form.builder select,form.builder input[type=number]{font:inherit;width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
 .out input,.out textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}.gallery figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.gallery img{max-width:100%;height:auto}.gallery figcaption{font-size:.9rem}.btn.small{padding:4px 12px;font-size:.85rem}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}.gallery figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.gallery img{max-width:100%;height:auto}.gallery figcaption{font-size:.9rem}.btn.small{padding:4px 12px;font-size:.85rem}.gallery.strip{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 14px;overscroll-behavior-x:contain}.gallery.strip figure{flex:0 0 220px;scroll-snap-align:start}.gallery .url{font-size:.78rem;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .preview{min-height:80px;display:flex;align-items:center;justify-content:center;padding:12px;background:repeating-conic-gradient(var(--code) 0 25%,transparent 0 50%) 0 0/20px 20px;border-radius:12px}.preview img{max-width:100%;height:auto}
 footer.site{border-top:1px solid var(--line);padding:24px 0 36px;color:var(--muted);font-size:.92rem}footer.site p{margin:.35em 0}
 `;
@@ -83,7 +85,7 @@ function helpPage(origin, noindex) {
   const gallery = ARTS.map(
     (a, i) => `<figure>
 <img src="/${APP}/${a.name}" alt="${esc(a.title)}, animated text art" loading="lazy">
-<figcaption><strong>${esc(a.title)}</strong> <code id="g${i}">${esc(a.name)}</code><br><span class="muted">${a.tags.map(esc).join(", ")}</span></figcaption>
+<figcaption><strong>${esc(a.title)}</strong> <code id="g${i}">${esc(a.name)}</code><br><span class="muted">${a.tags.map(esc).join(", ")}</span><br><a class="url" href="${esc(base)}/${a.name}">${esc(base)}/${a.name}</a></figcaption>
 <div class="row" style="margin:0"><button class="btn small" type="button" data-copy="m${i}" data-status="gs${i}">Copy Markdown</button><span id="gs${i}" role="status" aria-live="polite" class="muted"></span></div>
 <input type="hidden" id="m${i}" value="![${esc(a.title)}](${esc(base)}/${a.name})">
 </figure>`,
@@ -94,8 +96,8 @@ function helpPage(origin, noindex) {
 
 <section aria-labelledby="gal">
 <h2 id="gal">Gallery</h2>
-<p>All ${ARTS.length} sets, animating live. Each name is also its URL.</p>
-<div class="gallery">
+<p>All ${ARTS.length} sets, animating live. Scroll sideways to see them all; each name is also its URL.</p>
+<div class="gallery strip" role="region" aria-label="Gallery of all art sets, scroll sideways" tabindex="0">
 ${gallery}
 </div>
 </section>

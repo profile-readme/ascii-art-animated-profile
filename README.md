@@ -1,5 +1,7 @@
 # ascii-art-animated-profile
 
+English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md)
+
 Tiny animated kaomoji and ASCII art for your GitHub profile README. A cat that blinks, a
 table that gets flipped and put back, the 2channel classic Owata jumping in despair, a
 greentext that types itself. One Markdown line, no sign-up, no JavaScript.
@@ -180,12 +182,14 @@ pink notice naming the position of the unknown option.
 
 | Option | Effect |
 |---|---|
-| `size-N` | Font size in pixels, 12 to 64 (default 22) |
+| `size-N`, `size-Nrem` | Font size in pixels, 12 to 64 (default 22) |
+| `px` | Pin exact pixels instead of rem (see below) |
 | `card` | A rounded card behind the art |
 | `border-N` | Card border in pixels, 0 to 8 |
 | `color-RRGGBB` | Text color in hex, without `#` |
 | `rainbow` | Text slowly cycles through soft colors |
 | `auto`, `light`, `dark`, `transparent` | Theme (default `auto`) |
+| `warm` | Warm readmes palette instead of GitHub's own text colors (default) |
 | `left`, `center` | Alignment override |
 
 ### Motion
@@ -198,6 +202,14 @@ pink notice naming the position of the unknown option.
 
 In auto mode the text is dark on light backgrounds and light on dark ones, matching each
 viewer's GitHub theme. The greentext keeps its traditional green unless you pick a color.
+
+### Sizing in rem
+
+Every image is sized in rem, where 1rem is 16 pixels. With default browser settings it looks
+exactly like a pixel size. When a reader has raised the default font size in their browser,
+often to make text easier to read, the art grows with it, just like the text around it. You
+can also write sizes in rem, as in `size-2rem`. Add `px` when a piece must keep an exact
+pixel size, for example to line up with other images in a row.
 
 ## Recipes
 

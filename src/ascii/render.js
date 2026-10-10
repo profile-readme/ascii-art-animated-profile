@@ -7,6 +7,9 @@ import { SITE } from "./site.generated.js";
 export const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const r1 = (n) => Math.round(n * 10) / 10;
+// Root size in rem (1rem = 16px) so the whole image follows the reader's browser font-size
+// setting; identical to pixels at the default 16px. The px option pins exact pixels instead.
+const dim = (n, px) => (px ? String(n) : `${Math.round((n / 16) * 10000) / 10000}rem`);
 const pct = (n) => Math.round(n * 1000) / 1000;
 
 // Rough advance width in em, used only to size the canvas. Fonts differ, so the result is padded.
@@ -20,7 +23,12 @@ export function cellWidth(ch) {
 }
 export const lineWidth = (line) => [...line].reduce((w, ch) => w + cellWidth(ch), 0);
 
-const PALETTE = { light: { bg: "#fff8f1", fg: "#3b2418", line: "#ecd9c8" }, dark: { bg: "#241e2b", fg: "#f6e7dc", line: "#3a3142" } };
+// Default: GitHub's own colors (text, canvas, border), so the image reads like the README around it.
+// An image cannot inherit the page's colors, so they are matched exactly. "warm" keeps the readmes palette.
+const PALETTES = {
+  github: { light: { bg: "#ffffff", fg: "#1f2328", line: "#d1d9e0" }, dark: { bg: "#0d1117", fg: "#f0f6fc", line: "#3d444d" } },
+  warm: { light: { bg: "#fff8f1", fg: "#3b2418", line: "#ecd9c8" }, dark: { bg: "#241e2b", fg: "#f6e7dc", line: "#3a3142" } },
+};
 const FONT = 'ui-monospace,SFMono-Regular,Menlo,Consolas,"DejaVu Sans Mono","Noto Sans Mono CJK JP","MS Gothic","Hiragino Kaku Gothic ProN",monospace';
 
 export function renderArt(art, opts) {
@@ -41,6 +49,7 @@ export function renderArt(art, opts) {
   const fg = opts.color ? "#" + opts.color : art.color && !opts.rainbow ? "#" + art.color : "var(--fg)";
 
   const vars = (p) => `--bg:${p.bg};--fg:${p.fg};--line:${p.line};`;
+  const PALETTE = PALETTES[opts.palette] ?? PALETTES.github;
   let css = `svg{${vars(opts.theme === "dark" ? PALETTE.dark : PALETTE.light)}}`;
   if (opts.theme === "auto" || opts.theme === "transparent") css += `@media (prefers-color-scheme:dark){svg{${vars(PALETTE.dark)}}}`;
   css += `text{font-family:${FONT};font-size:${S}px;white-space:pre;fill:${fg}}`;
@@ -80,7 +89,7 @@ export function renderArt(art, opts) {
   }
   const label = `ASCII art: ${art.title}${frames.length > 1 ? " (animated)" : ""}`;
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="t">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${dim(W, opts.px)}" height="${dim(H, opts.px)}" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="t">` +
     `<!-- (c) ${esc(SITE.copyrightYear)} ${esc(SITE.copyrightHolder)} (${esc(SITE.copyrightUrl)}) -->` +
     `<title id="t">${esc(label)}</title><style>${css}</style>` +
     bg + `<g class="b">${frames.length > 1 ? groups.join("") : groups[0].replace('class="f f0"', "")}</g></svg>`
@@ -91,7 +100,7 @@ export function renderNotice(message) {
   const text = `ascii: ${message} (see help)`;
   const W = Math.round(text.length * 7.2 + 24);
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="28" viewBox="0 0 ${W} 28" role="img" aria-label="${esc(text)}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${dim(W)}" height="${dim(28)}" viewBox="0 0 ${W} 28" role="img" aria-label="${esc(text)}">` +
     `<title>${esc(text)}</title><rect width="${W}" height="28" rx="14" fill="#fde2e4"/>` +
     `<text x="${W / 2}" y="18.5" text-anchor="middle" fill="#9b2c3a" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">${esc(text)}</text></svg>`
   );

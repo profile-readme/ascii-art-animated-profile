@@ -7,7 +7,7 @@ export const THEMES = ["auto", "light", "dark", "transparent"];
 const bounded = (v, min, max) => Math.min(max, Math.max(min, v));
 
 export function parseOptions(segments) {
-  const opts = { art: null, tag: null, mode: "random", card: false, theme: "auto", size: 22, border: 0, color: null, rainbow: false, bounce: false, still: false, speed: 100, align: null };
+  const opts = { art: null, tag: null, mode: "random", card: false, palette: "github", theme: "auto", size: 22, border: 0, color: null, rainbow: false, bounce: false, still: false, speed: 100, align: null };
   if (segments.length > 16 || segments.join("/").length > 512) return { error: "too many options" };
   for (let i = 0; i < segments.length; i++) {
     let t = String(segments[i]).toLowerCase();
@@ -20,11 +20,13 @@ export function parseOptions(segments) {
     else if (t === "random" || t === "daily") opts.mode = t;
     else if (THEMES.includes(t)) opts.theme = t;
     else if (t === "card") opts.card = true;
+    else if (t === "warm") opts.palette = "warm";
     else if (t === "rainbow") opts.rainbow = true;
     else if (t === "bounce") opts.bounce = true;
     else if (t === "static") opts.still = true;
     else if (t === "left" || t === "center") opts.align = t;
-    else if ((m = t.match(/^size-(\d{1,3})$/))) opts.size = bounded(+m[1], 12, 64);
+    else if (t === "px") opts.px = true;
+    else if ((m = t.match(/^size-(\d{1,4}(?:\.\d{1,3})?)(rem)?$/))) opts.size = bounded(Math.round(+m[1] * (m[2] ? 16 : 1)), 12, 64);
     else if ((m = t.match(/^border-(\d{1,2})$/))) opts.border = bounded(+m[1], 0, 8);
     else if ((m = t.match(/^speed-(\d{1,3})$/))) opts.speed = bounded(+m[1], 25, 400);
     else if ((m = t.match(/^color-([0-9a-f]{3}|[0-9a-f]{6})$/))) opts.color = m[1];
